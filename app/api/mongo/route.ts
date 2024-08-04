@@ -27,7 +27,12 @@ export async function GET(request: Request) {
 // Check the output in the console
 
     return NextResponse.json({ country, end_year, topic, source, region , sector, pestle }); // Return the data as a response
-  } finally {
+  } 
+  
+
+
+  
+  finally {
     // Close the connection after the data is retrieved
     await client.close();
   }

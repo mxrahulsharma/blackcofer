@@ -16,7 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useRouter } from 'next/navigation';
+
 
 interface ComboboxProps {
   selectedValue: string;
@@ -40,15 +40,17 @@ export function ComboboxDemo({
     setValue(selectedValue);
   }, [selectedValue]);
 
-  const fetchAndSetData = async (selectedValue: string) => {
-    try {
-      const response = await fetch(`/get/mongo?${filterKey}=${selectedValue}`);
-      const data = await response.json();
-      setData(data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+//   const fetchAndSetData = async (selectedValue: string) => {
+//     try {
+//       const response = await fetch(`/api/get?${filterKey}=${selectedValue}`);
+//       const data = await response.json();
+//       setData(data);
+//     } catch (error) {
+//       console.error("Error fetching data:", error);
+//     }
+//   };
+
+
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -59,9 +61,13 @@ export function ComboboxDemo({
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {value
-            ? choices.find((option) => option === value) || "Select "
-            : "Select ..."}
+           {value ? (
+            <>
+              <span className="truncate">{value}</span>
+            </>
+          ) : (
+            "Select..."
+          )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -83,7 +89,7 @@ export function ComboboxDemo({
                       currentValue === value ? "" : currentValue
                     );
                     setOpen(true);
-                    fetchAndSetData(currentValue);
+                    // fetchAndSetData(currentValue);
                   }}
                 >
                   <Check

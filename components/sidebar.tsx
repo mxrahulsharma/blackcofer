@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Popover } from './ui/popover';
 import { ComboboxDemo } from './ui/combobox';
 import { FaRedoAlt } from 'react-icons/fa';
-import FilteredData from './FilteredDataDisplay';
+import FilteredData from './FilteredDataDisplay'; // Import the FilteredDataDisplay component
 
 interface FilterData {
   end_year: string;
@@ -38,6 +38,7 @@ const Sidebar: React.FC = () => {
   const [sources, setSources] = useState<string[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
   const [filteredData, setFilteredData] = useState<any[]>([]);
+  const [filterText, setFilterText] = useState<string>(''); // Store filter text
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,6 +79,13 @@ const Sidebar: React.FC = () => {
       const data = await response.json();
       console.log("Received filtered data:", data);
       setFilteredData(data.country || []); // Ensure it sets an array
+      // Update the filter text when filters are applied
+      setFilterText(
+        Object.entries(filters)
+          .filter(([_, value]) => value)
+          .map(([key, value]) => `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`)
+          .join(', ')
+      );
     } catch (error) {
       console.error("Error applying filters:", error);
     }
@@ -85,44 +93,47 @@ const Sidebar: React.FC = () => {
 
   return (
     <div>
-      <aside className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
-        <div className="h-full px-4 py-6 overflow-y-auto bg-gray-50 dark:bg-gray-800">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Filters</h2>
-          <ul className="space-y-4 font-medium">
+      <aside className="fixed top-0 left-0 z-40 w-64 h-screen bg-gray-50 dark:bg-gray-800">
+        <div className="h-full px-4 py-6 overflow-y-auto">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Filters</h2>
+          <ul className="space-y-4">
             {[
               { key: 'country', options: countries },
-              { key: 'end_year', options: endYears },
+              { key: 'end_year', options: endYears.map(String) },
               { key: 'topic', options: topics },
               { key: 'sector', options: sectors },
               { key: 'region', options: regions },
               { key: 'pestle', options: pestles },
               { key: 'source', options: sources },
             ].map(({ key, options }) => (
-              <li key={key} className="flex items-center">
-                <button
-                  type="button"
-                  className="flex-1 flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                  aria-controls="dropdown-example"
-                  data-collapse-toggle="dropdown-example"
-                >
-                  <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
+              <li key={key} className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-gray-900 dark:text-white w-32">
                     {key.charAt(0).toUpperCase() + key.slice(1)}
                   </span>
-                </button>
-                <ComboboxDemo
-                  choices={options}
-                  selectedValue={filters[key as keyof FilterData]}
-                  onChange={(value) => handleFilterChange(key as keyof FilterData, value)}
-                  filterKey={key}
-                  setData={setFilteredData}
-                />
-                <button
-                  type="button"
-                  className="ml-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                  onClick={() => clearFilter(key as keyof FilterData)}
-                >
-                  <FaRedoAlt />
-                </button>
+                  <button
+                    type="button"
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    onClick={() => clearFilter(key as keyof FilterData)}
+                  >
+                  </button>
+                </div>
+                <div className="flex items-center"> 
+                  <ComboboxDemo
+                    choices={options}
+                    selectedValue={filters[key as keyof FilterData]}
+                    onChange={(value) => handleFilterChange(key as keyof FilterData, value)}
+                    filterKey={key}
+                    setData={setFilteredData}
+                  />
+                  <button
+                    type="button"
+                    className="ml-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    onClick={() => clearFilter(key as keyof FilterData)}
+                  >
+                    <FaRedoAlt />
+                  </button>
+                </div>
               </li>
             ))}
             <li>
@@ -140,7 +151,7 @@ const Sidebar: React.FC = () => {
       </aside>
 
       <main className="ml-64 flex-1 p-4">
-        <FilteredData data={filteredData} />
+        <FilteredData data={filteredData} filterText={filterText} /> {/* Pass the filter text */}
       </main>
     </div>
   );
